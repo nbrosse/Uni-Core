@@ -7,7 +7,7 @@ name: Python Package
 on:
   create:
     tags:
-      - '**'
+      - '*'
 
 jobs:
   release:
