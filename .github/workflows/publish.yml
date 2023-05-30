@@ -120,7 +120,7 @@ jobs:
         if: ${{ matrix.cuda-version == 'cpu' }}
         run: |
           pip install wheel
-          python setup.py bdist_wheel --dist-dir=dist
+          python setup.py bdist_wheel --dist-dir=dist --disable-cuda-ext
           tmpname=cpu+torch${{ matrix.torch-version }}
           wheel_name=$(ls dist/*whl | xargs -n 1 basename | sed "s/-/+$tmpname-/2")
           ls dist/*whl |xargs -I {} mv {} ${wheel_name}
