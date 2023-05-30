@@ -5,9 +5,9 @@
 name: Python Package
 
 on:
-  create:
-    tags:
-      - '*'
+  release:
+    types:
+      - published
 
 jobs:
   release:
