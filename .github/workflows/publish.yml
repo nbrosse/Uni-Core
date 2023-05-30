@@ -13,28 +13,9 @@ on: push
 #      - published
 
 jobs:
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get the tag version
-        id: extract_branch
-        run: echo ::set-output name=branch::${GITHUB_REF#refs/tags/}
-        shell: bash
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.extract_branch.outputs.branch }}
-          release_name: ${{ steps.extract_branch.outputs.branch }}
-      
   wheel:
     name: Build Wheel
     runs-on: ${{ matrix.os }}
-    needs: release
     
     strategy:
       fail-fast: false
@@ -68,8 +49,7 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet
           bash .github/workflows/env.sh
-          echo ${{ needs.create_release.outputs.upload_url }} 
-          echo ${{ needs.steps.extract_branch.outputs.upload_url }} 
+          echo "Linux env set-up successfully"
         shell:
           bash
 
@@ -145,7 +125,13 @@ jobs:
           wheel_name=$(ls dist/*whl | xargs -n 1 basename | sed "s/-/+$tmpname-/2")
           ls dist/*whl |xargs -I {} mv {} ${wheel_name}
           echo "wheel_name=${wheel_name}" >> $GITHUB_ENV        
-      
+
+      - name: Get Release
+        id: get_release
+        uses: bruceadams/get-release@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Upload Release Asset
         id: upload_release_asset 
         uses: actions/upload-release-asset@v1
@@ -154,7 +140,7 @@ jobs:
         with:
           # upload_url: ${{ needs.create_release.outputs.upload_url }}
           # why didn't works
-          upload_url: ${{ steps.get_current_release.outputs.upload_url }}
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./${{env.wheel_name}}
           asset_name: ${{env.wheel_name}}
           asset_content_type: application/*
