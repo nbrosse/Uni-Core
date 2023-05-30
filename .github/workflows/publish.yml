@@ -3,7 +3,7 @@
 
 
 name: Python Package
-
+run-name: Run ${{ github.run_id }}
 
 on: push
 
@@ -20,8 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          # os: [ubuntu-20.04]
-          os: [ubuntu-18.04]
+#          os: [ubuntu-18.04]
+          os: [ubuntu-latest]
           python-version: ['3.9']
           torch-version: [1.13.1, 2.0.1]
           cuda-version: ['116', '117', '118']
