@@ -1,12 +1,10 @@
 name: Python Package
 run-name: Run ${{ github.run_id }}
 
-on: push
-
-#on:
-#  release:
-#    types:
-#      - published
+on:
+ release:
+   types:
+     - published
 
 jobs:
   wheel:
