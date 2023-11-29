@@ -16,6 +16,7 @@ import sys
 from collections import OrderedDict
 from contextlib import contextmanager
 from numbers import Number
+from pathlib import Path
 from typing import Optional
 
 import torch
@@ -317,14 +318,19 @@ class TensorboardProgressBarWrapper(BaseProgressBar):
                 entity, project = wandb_project.split("/")
             else:
                 entity, project = None, wandb_project
+            wandb_logdir = str(Path(tensorboard_logdir.parent) / "wandb")
             wandb.init(
                 project=project,
                 entity=entity,
                 name=wandb_name,
+                dir=wandb_logdir,
                 config=vars(args),
                 id=wandb_name,
                 resume="allow",
             )
+            wandb.define_metric("custom_step")
+            wandb.define_metric("train_*", step_metric="custom_step")
+            wandb.define_metric("valid_*", step_metric="custom_step")
             _wandb_inited = True
 
     def _writer(self, key):
@@ -372,5 +378,6 @@ class TensorboardProgressBarWrapper(BaseProgressBar):
             if val:
                 writer.add_scalar(key, val, step)
                 if _wandb_inited:
-                    wandb.log({"{}_{}".format(tag, key): val}, step=step)
+                    # wandb.log({"{}_{}".format(tag, key): val}, step=step)
+                    wandb.log({"{}_{}".format(tag, key): val, "custom_step": step})
         writer.flush()

@@ -281,7 +281,7 @@ def add_distributed_training_args(parser):
                             'establish initial connetion')
     group.add_argument('--distributed-port', default=-1, type=int,
                        help='port number (not required if using --distributed-init-method)')
-    group.add_argument('--device-id', '--local_rank', default=0, type=int,
+    group.add_argument('--device-id', '--local-rank', '--local_rank', default=0, type=int,
                        help='which GPU to use (usually configured automatically)')
     group.add_argument('--distributed-no-spawn', action='store_true',
                        help='do not spawn multiple processes even if multiple GPUs are visible')
