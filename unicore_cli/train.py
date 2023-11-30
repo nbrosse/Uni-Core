@@ -197,6 +197,9 @@ def train(
         tensorboard_logdir=(
             args.tensorboard_logdir if distributed_utils.is_master(args) else None
         ),
+        wandb_logdir=(
+            args.wandb_logdir if distributed_utils.is_master(args) else None
+        ),
         wandb_project=(
             args.wandb_project if distributed_utils.is_master(args) else None
         ),
@@ -365,6 +368,11 @@ def validate(
                 prefix=f"valid on '{subset}' subset",
                 tensorboard_logdir=(
                     args.tensorboard_logdir
+                    if distributed_utils.is_master(args)
+                    else None
+                ),
+                wandb_logdir=(
+                    args.wandb_logdir
                     if distributed_utils.is_master(args)
                     else None
                 ),

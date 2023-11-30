@@ -34,6 +34,7 @@ def progress_bar(
     epoch: Optional[int] = None,
     prefix: Optional[str] = None,
     tensorboard_logdir: Optional[str] = None,
+    wandb_logdir: Optional[str] = None,
     wandb_project: Optional[str] = None,
     default_log_format: str = "tqdm",
     args=None,
@@ -56,7 +57,7 @@ def progress_bar(
 
     if tensorboard_logdir:
         bar = TensorboardProgressBarWrapper(
-            bar, tensorboard_logdir, wandb_project, args
+            bar, tensorboard_logdir, wandb_logdir, wandb_project, args
         )
 
     return bar
@@ -303,7 +304,7 @@ atexit.register(_close_writers)
 class TensorboardProgressBarWrapper(BaseProgressBar):
     """Log to tensorboard."""
 
-    def __init__(self, wrapped_bar, tensorboard_logdir, wandb_project, args):
+    def __init__(self, wrapped_bar, tensorboard_logdir, wandb_logdir, wandb_project, args):
         self.wrapped_bar = wrapped_bar
         self.tensorboard_logdir = tensorboard_logdir
 
@@ -318,7 +319,6 @@ class TensorboardProgressBarWrapper(BaseProgressBar):
                 entity, project = wandb_project.split("/")
             else:
                 entity, project = None, wandb_project
-            wandb_logdir = str(Path(tensorboard_logdir).parent / "wandb")
             wandb.init(
                 project=project,
                 entity=entity,

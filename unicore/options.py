@@ -174,6 +174,8 @@ def get_parser(desc, default_task="test"):
     parser.add_argument('--tensorboard-logdir', metavar='DIR', default='',
                         help='path to save logs for tensorboard, should match --logdir '
                              'of running tensorboard (default: no tensorboard logging)')
+    parser.add_argument('--wandb-logdir', metavar='DIR', default='',
+                        help='path to save logs for wandb')
     parser.add_argument('--wandb-project', metavar='DIR', default='',
                         help='name of wandb project, empty for no wandb logging, for wandb login, use env WANDB_API_KEY. You can also use team_name/project_name for project name.')
     parser.add_argument('--wandb-name', metavar='DIR', default='',
