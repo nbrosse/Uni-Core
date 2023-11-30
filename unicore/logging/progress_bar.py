@@ -318,7 +318,7 @@ class TensorboardProgressBarWrapper(BaseProgressBar):
                 entity, project = wandb_project.split("/")
             else:
                 entity, project = None, wandb_project
-            wandb_logdir = str(Path(tensorboard_logdir.parent) / "wandb")
+            wandb_logdir = str(Path(tensorboard_logdir).parent / "wandb")
             wandb.init(
                 project=project,
                 entity=entity,
