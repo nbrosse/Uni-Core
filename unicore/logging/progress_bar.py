@@ -325,7 +325,7 @@ class TensorboardProgressBarWrapper(BaseProgressBar):
                 name=wandb_name,
                 dir=wandb_logdir,
                 config=vars(args),
-                id=wandb_name,
+                # id=wandb_name,
                 resume="allow",
             )
             wandb.define_metric("custom_step")
