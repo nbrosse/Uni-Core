@@ -17,6 +17,8 @@ from typing import Dict, Optional, Any, List, Tuple, Callable
 
 import numpy as np
 import torch
+import wandb
+
 from unicore import (
     checkpoint_utils,
     options,
@@ -194,18 +196,21 @@ def train(
         log_format=args.log_format,
         log_interval=args.log_interval,
         epoch=epoch_itr.epoch,
-        tensorboard_logdir=(
-            args.tensorboard_logdir if distributed_utils.is_master(args) else None
-        ),
-        wandb_logdir=(
-            args.wandb_logdir if distributed_utils.is_master(args) else None
-        ),
-        wandb_project=(
-            args.wandb_project if distributed_utils.is_master(args) else None
-        ),
+        save_dir=args.save_dir,
+        tensorboard=args.tensorboard if distributed_utils.is_master(args) else False,
+        wandb_project=args.wandb_project if distributed_utils.is_master(args) else None,
+        wandb_run_name=args.wandb_run_name if distributed_utils.is_master(args) else None,
+        wandb_run_id=args.wandb_run_id if distributed_utils.is_master(args) else None,
         default_log_format=("tqdm" if not args.no_progress_bar else "simple"),
-        args=args,
     )
+
+    # Wandb
+    # print("wandb watch")
+    # wandb.watch(
+    #     models=trainer.model,
+    #     log="all",
+    #     log_freq=10,
+    # )
 
     trainer.begin_epoch(epoch_itr.epoch)
 
@@ -366,16 +371,15 @@ def validate(
                 log_interval=args.log_interval,
                 epoch=epoch_itr.epoch,
                 prefix=f"valid on '{subset}' subset",
-                tensorboard_logdir=(
-                    args.tensorboard_logdir
-                    if distributed_utils.is_master(args)
-                    else None
-                ),
-                wandb_logdir=(
-                    args.wandb_logdir
-                    if distributed_utils.is_master(args)
-                    else None
-                ),
+                save_dir=args.save_dir,
+                tensorboard=args.tensorboard if distributed_utils.is_master(
+                    args) else False,
+                wandb_project=args.wandb_project if distributed_utils.is_master(
+                    args) else None,
+                wandb_run_name=args.wandb_run_name if distributed_utils.is_master(
+                    args) else None,
+                wandb_run_id=args.wandb_run_id if distributed_utils.is_master(
+                    args) else None,
                 default_log_format=("tqdm" if not args.no_progress_bar else "simple"),
             )
 
