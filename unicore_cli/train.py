@@ -201,6 +201,7 @@ def train(
         wandb_project=args.wandb_project if distributed_utils.is_master(args) else None,
         wandb_run_name=args.wandb_run_name if distributed_utils.is_master(args) else None,
         wandb_run_id=args.wandb_run_id if distributed_utils.is_master(args) else None,
+        args=args,
         default_log_format=("tqdm" if not args.no_progress_bar else "simple"),
     )
 
@@ -380,6 +381,7 @@ def validate(
                     args) else None,
                 wandb_run_id=args.wandb_run_id if distributed_utils.is_master(
                     args) else None,
+                args=args,
                 default_log_format=("tqdm" if not args.no_progress_bar else "simple"),
             )
 
