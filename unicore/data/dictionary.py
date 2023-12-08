@@ -17,11 +17,10 @@ class Dictionary:
         *,  # begin keyword-only arguments
         bos="[CLS]",
         pad="[PAD]",
-        eos="[SEP]",
         unk="[UNK]",
         extra_special_symbols=None,
     ):
-        self.bos_word, self.unk_word, self.pad_word, self.eos_word = bos, unk, pad, eos
+        self.bos_word, self.unk_word, self.pad_word = bos, unk, pad
         self.symbols = []
         self.count = []
         self.indices = {}
@@ -29,7 +28,6 @@ class Dictionary:
         self.specials.add(bos)
         self.specials.add(unk)
         self.specials.add(pad)
-        self.specials.add(eos)
 
     def __eq__(self, other):
         return self.indices == other.indices
@@ -82,10 +80,6 @@ class Dictionary:
         """Helper to get index of pad symbol"""
         return self.index(self.pad_word)
 
-    def eos(self):
-        """Helper to get index of end-of-sentence symbol"""
-        return self.index(self.eos_word)
-
     def unk(self):
         """Helper to get index of unk symbol"""
         return self.index(self.unk_word)
@@ -128,7 +122,7 @@ class Dictionary:
             try:
                 splits = line.rstrip().rsplit(" ", 1)
                 line = splits[0]
-                field = splits[1] if len(splits) > 1 else str(len(lines) - line_idx)
+                field = splits[1] if len(splits) > 1 else str(1)
                 if field == "#overwrite":
                     overwrite = True
                     line, field = line.rsplit(" ", 1)
