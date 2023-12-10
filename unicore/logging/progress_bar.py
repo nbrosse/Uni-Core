@@ -384,15 +384,16 @@ class WandBProgressBarWrapper(BaseProgressBar):
         if not wandb_available:
             logger.warning("wandb not found, pip install wandb")
             return
-        wandb.init(
-            project=wandb_project,
-            name=run_name,
-            id=run_id,
-            resume="allow",
-            config=vars(args) if args is not None else None,
-            dir=wandb_logdir,
-        )
-        _wandb_inited = True
+        # print("toto")
+        # wandb.init(
+        #     project=wandb_project,
+        #     name=run_name,
+        #     id=run_id,
+        #     resume="allow",
+        #     config=vars(args) if args is not None else None,
+        #     dir=wandb_logdir,
+        # )
+        # _wandb_inited = True
 
     def __iter__(self):
         return iter(self.wrapped_bar)

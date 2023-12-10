@@ -74,6 +74,25 @@ def main(args) -> None:
     model = task.build_model(args)
     loss = task.build_loss(args)
 
+    # Wandb
+    print("Wandb init")
+    wandb_logdir = os.path.join(args.save_dir, "wandb")
+    os.makedirs(wandb_logdir, exist_ok=True)
+    wandb.init(
+        project=args.wandb_project,
+        name=args.wandb_run_name,
+        id=args.wandb_run_id,
+        resume="allow",
+        config=vars(args) if args is not None else None,
+        dir=wandb_logdir,
+    )
+    print("Wandb watch")
+    wandb.watch(
+        models=model,
+        log="all",
+        log_freq=10,
+    )
+
     # Load valid dataset (we load training data below, based on the latest checkpoint)
     for valid_sub_split in args.valid_subset.split(","):
         task.load_dataset(valid_sub_split, combine=False, epoch=1)
