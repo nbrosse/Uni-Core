@@ -176,6 +176,7 @@ def get_parser(desc, default_task="test"):
                         help='name of wandb project, empty for no wandb logging, for wandb login, use env WANDB_API_KEY.')
     parser.add_argument('--wandb-run-name', default=None, help='wandb run name')
     parser.add_argument('--wandb-run-id', default=None, help='wandb run id')
+    parser.add_argument("--wandb-watch", action="store_true", help="Activate wandb watch to log weights and gradients")
     parser.add_argument('--seed', default=1, type=int, metavar='N',
                         help='pseudo random number generator seed')
     parser.add_argument('--cpu', action='store_true', help='use CPU instead of CUDA')

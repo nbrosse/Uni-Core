@@ -1,8 +1,13 @@
-iopath
 lmdb
-ml_collections
 numpy
-scipy
 tensorboardX
 tqdm
 tokenizers
+wandb
+mkl
+mkl-include
+ninja
+cython
+jinja2
+cmake
+lit
