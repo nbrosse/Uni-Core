@@ -9,12 +9,16 @@ import torch
 import numpy as np
 import collections
 from functools import lru_cache
+
+from unicore.data import BaseWrapperDataset
+
 from . import data_utils
 import logging
 logger = logging.getLogger(__name__)
 
-class LMDBDataset:
+class LMDBDataset(BaseWrapperDataset):
     def __init__(self, db_path):
+        super(LMDBDataset, self).__init__(dataset=None)
         self.db_path = db_path
         assert os.path.isfile(self.db_path), "{} not found".format(
             self.db_path

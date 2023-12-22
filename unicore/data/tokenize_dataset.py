@@ -24,5 +24,5 @@ class TokenizeDataset(BaseWrapperDataset):
     @lru_cache(maxsize=16)
     def __getitem__(self, index: int):
         raw_data = self.dataset[index]
-        assert len(raw_data) < self.max_seq_len and len(raw_data) > 0
+        assert len(raw_data) <= self.max_seq_len and len(raw_data) > 0
         return torch.from_numpy(self.dictionary.vec_index(raw_data)).long()

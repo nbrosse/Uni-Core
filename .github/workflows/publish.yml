@@ -62,8 +62,8 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch-version }}+cu${{ matrix.cuda-version }}
         if: ${{ matrix.cuda-version != 'cpu' }}
         run: |
-          pip --no-cache-dir install numpy pyyaml scipy ipython mkl mkl-include ninja cython typing pandas typing-extensions dataclasses
-          pip --no-cache-dir install sympy networkx jinja2 cmake lit
+          pip --no-cache-dir install numpy pyyaml mkl mkl-include ninja cython
+          pip --no-cache-dir install jinja2 cmake lit
           pip --no-cache-dir install torch==${{ matrix.torch-version }} --index-url https://download.pytorch.org/whl/cu${{ matrix.cuda-version }}
           python --version
           python -c "import torch; print('PyTorch:', torch.__version__)"
@@ -76,7 +76,7 @@ jobs:
         if: ${{ matrix.cuda-version == 'cpu' }}
         run: |
           python --version
-          pip --no-cache-dir install numpy pyyaml scipy ipython mkl mkl-include ninja cython typing pandas typing-extensions dataclasses
+          pip --no-cache-dir install numpy pyyaml mkl mkl-include ninja cython
           pip --no-cache-dir install torch==${{ matrix.torch-version }}
           python -c "import torch; print('PyTorch:', torch.__version__)"
         shell:
@@ -86,7 +86,7 @@ jobs:
         if: ${{ matrix.cuda-version != 'cpu' }}
         run: |
           pip install wheel
-          python setup.py bdist_wheel --dist-dir=dist
+          python setup.py --cross-compile bdist_wheel --dist-dir=dist
           tmpname=cu${{ matrix.cuda-version }}torch${{ matrix.torch-version }}
           wheel_name=$(ls dist/*whl | xargs -n 1 basename | sed "s/-/+$tmpname-/2")
           ls dist/*whl |xargs -I {} mv {} ${wheel_name}

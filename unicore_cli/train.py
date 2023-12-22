@@ -17,6 +17,8 @@ from typing import Dict, Optional, Any, List, Tuple, Callable
 
 import numpy as np
 import torch
+import wandb
+
 from unicore import (
     checkpoint_utils,
     options,
@@ -71,6 +73,27 @@ def main(args) -> None:
     # Build model and loss
     model = task.build_model(args)
     loss = task.build_loss(args)
+
+    # Wandb
+    if args.wandb_project is not None:
+        logger.info("Wandb init")
+        wandb_logdir = os.path.join(args.save_dir, "wandb")
+        os.makedirs(wandb_logdir, exist_ok=True)
+        wandb.init(
+            project=args.wandb_project,
+            name=args.wandb_run_name,
+            id=args.wandb_run_id,
+            resume="allow",
+            config=vars(args) if args is not None else None,
+            dir=wandb_logdir,
+        )
+        if args.wandb_watch:
+            logger.info("Wandb watch")
+            wandb.watch(
+                models=model,
+                log="all",
+                log_freq=args.log_interval,
+            )
 
     # Load valid dataset (we load training data below, based on the latest checkpoint)
     for valid_sub_split in args.valid_subset.split(","):
@@ -194,17 +217,10 @@ def train(
         log_format=args.log_format,
         log_interval=args.log_interval,
         epoch=epoch_itr.epoch,
-        tensorboard_logdir=(
-            args.tensorboard_logdir if distributed_utils.is_master(args) else None
-        ),
-        wandb_logdir=(
-            args.wandb_logdir if distributed_utils.is_master(args) else None
-        ),
-        wandb_project=(
-            args.wandb_project if distributed_utils.is_master(args) else None
-        ),
+        save_dir=args.save_dir,
+        tensorboard=args.tensorboard if distributed_utils.is_master(args) else False,
+        wandb_project=args.wandb_project if distributed_utils.is_master(args) else None,
         default_log_format=("tqdm" if not args.no_progress_bar else "simple"),
-        args=args,
     )
 
     trainer.begin_epoch(epoch_itr.epoch)
@@ -366,16 +382,11 @@ def validate(
                 log_interval=args.log_interval,
                 epoch=epoch_itr.epoch,
                 prefix=f"valid on '{subset}' subset",
-                tensorboard_logdir=(
-                    args.tensorboard_logdir
-                    if distributed_utils.is_master(args)
-                    else None
-                ),
-                wandb_logdir=(
-                    args.wandb_logdir
-                    if distributed_utils.is_master(args)
-                    else None
-                ),
+                save_dir=args.save_dir,
+                tensorboard=args.tensorboard if distributed_utils.is_master(
+                    args) else False,
+                wandb_project=args.wandb_project if distributed_utils.is_master(
+                    args) else None,
                 default_log_format=("tqdm" if not args.no_progress_bar else "simple"),
             )
 

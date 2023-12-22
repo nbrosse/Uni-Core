@@ -4,6 +4,7 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
+
 import torch
 from torch.utils import cpp_extension
 from torch.utils.cpp_extension import CUDAExtension, BuildExtension
@@ -15,13 +16,20 @@ import sys
 from setuptools import find_packages, setup
 
 DISABLE_CUDA_EXTENSION = False
+CROSS_COMPILE = False
+CUDA_AVAILABLE = torch.cuda.is_available()
 filtered_args = []
 for i, arg in enumerate(sys.argv):
     if arg == '--disable-cuda-ext':
         DISABLE_CUDA_EXTENSION = True
-        continue
-    filtered_args.append(arg)
+    elif arg == '--cross-compile':
+        CROSS_COMPILE = True
+    else:
+        filtered_args.append(arg)
 sys.argv = filtered_args
+#
+if not CROSS_COMPILE and not CUDA_AVAILABLE:
+    DISABLE_CUDA_EXTENSION = True
 
 
 if sys.version_info < (3, 7):
@@ -114,7 +122,7 @@ if not DISABLE_CUDA_EXTENSION:
     if torch.utils.cpp_extension.CUDA_HOME is None:
         raise RuntimeError("Nvcc was not found.  Are you sure your environment has nvcc available?  If you're installing within a container from https://hub.docker.com/r/pytorch/pytorch, only images whose names contain 'devel' will provide nvcc.")
 
-    # check_cuda_torch_binary_vs_bare_metal(torch.utils.cpp_extension.CUDA_HOME)
+    check_cuda_torch_binary_vs_bare_metal(torch.utils.cpp_extension.CUDA_HOME)
 
     generator_flag = []
     torch_dir = torch.__path__[0]
@@ -229,15 +237,13 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     setup_requires=[
-        "setuptools>=18.0",
+        "setuptools>=58.0.0",
     ],
     install_requires=[
         'numpy; python_version>="3.7"',
         "lmdb",
         "torch>=2.0.0",
         "tqdm",
-        "ml_collections",
-        "scipy",
         "tensorboardX",
         "tokenizers",
         "wandb",

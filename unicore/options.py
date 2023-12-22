@@ -171,15 +171,12 @@ def get_parser(desc, default_task="test"):
                         help='log progress every N batches (when progress bar is disabled)')
     parser.add_argument('--log-format', default=None, help='log format to use',
                         choices=['json', 'none', 'simple', 'tqdm'])
-    parser.add_argument('--tensorboard-logdir', metavar='DIR', default='',
-                        help='path to save logs for tensorboard, should match --logdir '
-                             'of running tensorboard (default: no tensorboard logging)')
-    parser.add_argument('--wandb-logdir', metavar='DIR', default='',
-                        help='path to save logs for wandb')
-    parser.add_argument('--wandb-project', metavar='DIR', default='',
-                        help='name of wandb project, empty for no wandb logging, for wandb login, use env WANDB_API_KEY. You can also use team_name/project_name for project name.')
-    parser.add_argument('--wandb-name', metavar='DIR', default='',
-                        help='wandb run/id name, empty for no wandb logging, for wandb login, use env WANDB_API_KEY')
+    parser.add_argument('--tensorboard', action='store_true', help='Active tensorboard logging')
+    parser.add_argument('--wandb-project', default=None,
+                        help='name of wandb project, empty for no wandb logging, for wandb login, use env WANDB_API_KEY.')
+    parser.add_argument('--wandb-run-name', default=None, help='wandb run name')
+    parser.add_argument('--wandb-run-id', default=None, help='wandb run id')
+    parser.add_argument("--wandb-watch", action="store_true", help="Activate wandb watch to log weights and gradients")
     parser.add_argument('--seed', default=1, type=int, metavar='N',
                         help='pseudo random number generator seed')
     parser.add_argument('--cpu', action='store_true', help='use CPU instead of CUDA')

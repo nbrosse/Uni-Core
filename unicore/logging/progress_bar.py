@@ -16,8 +16,8 @@ import sys
 from collections import OrderedDict
 from contextlib import contextmanager
 from numbers import Number
-from pathlib import Path
 from typing import Optional
+import wandb
 
 import torch
 
@@ -33,11 +33,10 @@ def progress_bar(
     log_interval: int = 100,
     epoch: Optional[int] = None,
     prefix: Optional[str] = None,
-    tensorboard_logdir: Optional[str] = None,
-    wandb_logdir: Optional[str] = None,
+    save_dir: Optional[str] = "./save/",
+    tensorboard: bool = False,
     wandb_project: Optional[str] = None,
     default_log_format: str = "tqdm",
-    args=None,
 ):
     if log_format is None:
         log_format = default_log_format
@@ -55,10 +54,13 @@ def progress_bar(
     else:
         raise ValueError("Unknown log format: {}".format(log_format))
 
-    if tensorboard_logdir:
-        bar = TensorboardProgressBarWrapper(
-            bar, tensorboard_logdir, wandb_logdir, wandb_project, args
-        )
+    if tensorboard:
+        tensorboard_logdir = os.path.join(save_dir, "tsb")
+        os.makedirs(tensorboard_logdir, exist_ok=True)
+        bar = TensorboardProgressBarWrapper(bar, tensorboard_logdir)
+
+    if wandb_project:
+        bar = WandBProgressBarWrapper(bar)
 
     return bar
 
@@ -279,23 +281,14 @@ except ImportError:
     except ImportError:
         SummaryWriter = None
 
-try:
-    _wandb_inited = False
-    import wandb
-
-    wandb_available = True
-except ImportError:
-    wandb_available = False
-
-
 def _close_writers():
     for w in _tensorboard_writers.values():
         w.close()
-    if _wandb_inited:
-        try:
-            wandb.finish()
-        except:
-            pass
+    # if _wandb_inited:
+    #     try:
+    #         wandb.finish()
+    #     except:
+    #         pass
 
 
 atexit.register(_close_writers)
@@ -304,7 +297,7 @@ atexit.register(_close_writers)
 class TensorboardProgressBarWrapper(BaseProgressBar):
     """Log to tensorboard."""
 
-    def __init__(self, wrapped_bar, tensorboard_logdir, wandb_logdir, wandb_project, args):
+    def __init__(self, wrapped_bar, tensorboard_logdir):
         self.wrapped_bar = wrapped_bar
         self.tensorboard_logdir = tensorboard_logdir
 
@@ -312,26 +305,6 @@ class TensorboardProgressBarWrapper(BaseProgressBar):
             logger.warning(
                 "tensorboard not found, please install with: pip install tensorboard"
             )
-        global _wandb_inited
-        if not _wandb_inited and wandb_project and wandb_available:
-            wandb_name = args.wandb_name or wandb.util.generate_id()
-            if "/" in wandb_project:
-                entity, project = wandb_project.split("/")
-            else:
-                entity, project = None, wandb_project
-            wandb.init(
-                project=project,
-                entity=entity,
-                name=wandb_name,
-                dir=wandb_logdir,
-                config=vars(args),
-                # id=wandb_name,
-                resume="allow",
-            )
-            wandb.define_metric("custom_step")
-            wandb.define_metric("train_*", step_metric="custom_step")
-            wandb.define_metric("valid_*", step_metric="custom_step")
-            _wandb_inited = True
 
     def _writer(self, key):
         if SummaryWriter is None:
@@ -377,7 +350,41 @@ class TensorboardProgressBarWrapper(BaseProgressBar):
                 val = None
             if val:
                 writer.add_scalar(key, val, step)
-                if _wandb_inited:
-                    # wandb.log({"{}_{}".format(tag, key): val}, step=step)
-                    wandb.log({"{}_{}".format(tag, key): val, "custom_step": step})
         writer.flush()
+
+
+class WandBProgressBarWrapper(BaseProgressBar):
+    """Log to Weights & Biases."""
+
+    def __init__(self, wrapped_bar: BaseProgressBar):
+        # global _wandb_inited
+        # _wandb_inited = True
+        self.wrapped_bar = wrapped_bar
+
+    def __iter__(self):
+        return iter(self.wrapped_bar)
+
+    def log(self, stats, tag=None, step=None):
+        self._log_to_wandb(stats, tag, step)
+        self.wrapped_bar.log(stats, tag=tag, step=step)
+
+    def print(self, stats, tag=None, step=None):
+        self._log_to_wandb(stats, tag, step)
+        self.wrapped_bar.print(stats, tag=tag, step=step)
+
+    def update_config(self, config):
+        """Log latest configuration."""
+        wandb.config.update(config)
+        self.wrapped_bar.update_config(config)
+
+    def _log_to_wandb(self, stats, tag=None, step=None):
+        if step is None:
+            step = stats["num_updates"]
+
+        prefix = "" if tag is None else tag + "/"
+
+        for key in stats.keys() - {"num_updates"}:
+            if isinstance(stats[key], AverageMeter):
+                wandb.log({prefix + key: stats[key].val}, step=step)
+            elif isinstance(stats[key], Number):
+                wandb.log({prefix + key: stats[key]}, step=step)
