@@ -96,8 +96,9 @@ def main(args) -> None:
             )
 
     # Load valid dataset (we load training data below, based on the latest checkpoint)
-    for valid_sub_split in args.valid_subset.split(","):
-        task.load_dataset(valid_sub_split, combine=False, epoch=1)
+    if not args.disable_validation:
+        for valid_sub_split in args.valid_subset.split(","):
+            task.load_dataset(valid_sub_split, combine=False, epoch=1)
 
     logger.info(model)
     logger.info("task: {}".format(task.__class__.__name__))

@@ -327,4 +327,4 @@ class UnicoreTask(object):
             self.state.merge_state_dict(state_dict)
 
     def disable_shuffling(self) -> bool:
-        return False
+        return True
