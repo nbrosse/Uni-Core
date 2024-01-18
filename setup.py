@@ -266,6 +266,7 @@ setup(
     entry_points={
         "console_scripts": [
             "unicore-train = unicore_cli.train:cli_main",
+            "unicore-infer = unicore_cli.infer:cli_main",
         ],
     },
     zip_safe=False,
