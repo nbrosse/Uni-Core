@@ -10,29 +10,30 @@ from . import BaseWrapperDataset
 
 
 class PadDataset(BaseWrapperDataset):
-    def __init__(self, dataset, pad_idx, left_pad):
+    def __init__(self, dataset, pad_idx, left_pad, pad_to_multiple: int = 8):
         super().__init__(dataset)
         self.pad_idx = pad_idx
         self.left_pad = left_pad
+        self.pad_to_multiple = pad_to_multiple
 
     def collater(self, samples):
-        return data_utils.collate_tokens(samples, self.pad_idx, left_pad=self.left_pad, pad_to_multiple=8)
+        return data_utils.collate_tokens(samples, self.pad_idx, left_pad=self.left_pad, pad_to_multiple=self.pad_to_multiple)
 
 
 class LeftPadDataset(PadDataset):
-    def __init__(self, dataset, pad_idx):
-        super().__init__(dataset, pad_idx, left_pad=True)
+    def __init__(self, dataset, pad_idx, pad_to_multiple: int = 8):
+        super().__init__(dataset, pad_idx, left_pad=True, pad_to_multiple=pad_to_multiple)
 
 
 class RightPadDataset(PadDataset):
-    def __init__(self, dataset, pad_idx):
-        super().__init__(dataset, pad_idx, left_pad=False)
+    def __init__(self, dataset, pad_idx, pad_to_multiple: int = 8):
+        super().__init__(dataset, pad_idx, left_pad=False, pad_to_multiple=pad_to_multiple)
 
 
 class RightPadDataset2D(BaseWrapperDataset):
-    def __init__(self, dataset, pad_idx,left_pad=False):
+    def __init__(self, dataset, pad_idx, pad_to_multiple: int = 8):
         super().__init__(dataset)
         self.pad_idx = pad_idx
-        self.left_pad = left_pad
+        self.pad_to_multiple = pad_to_multiple
     def collater(self, samples):
-        return data_utils.collate_tokens_2d(samples, self.pad_idx, left_pad=self.left_pad, pad_to_multiple=8)
+        return data_utils.collate_tokens_2d(samples, self.pad_idx, left_pad=False, pad_to_multiple=self.pad_to_multiple)
