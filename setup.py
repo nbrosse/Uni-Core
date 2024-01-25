@@ -80,9 +80,7 @@ print("\n\ntorch.__version__  = {}\n\n".format(torch.__version__))
 TORCH_MAJOR = int(torch.__version__.split('.')[0])
 TORCH_MINOR = int(torch.__version__.split('.')[1])
 
-if not ( (TORCH_MAJOR >= 1 and TORCH_MINOR >= 4)
-        or (TORCH_MAJOR > 1)
-    ):
+if not ((TORCH_MAJOR >= 1 and TORCH_MINOR >= 4) or (TORCH_MAJOR > 1)):
     raise RuntimeError("Requires Pytorch 1.4 or newer.\n" +
                         "The latest stable release can be obtained from https://pytorch.org/")
 
@@ -122,7 +120,7 @@ if not DISABLE_CUDA_EXTENSION:
     if torch.utils.cpp_extension.CUDA_HOME is None:
         raise RuntimeError("Nvcc was not found.  Are you sure your environment has nvcc available?  If you're installing within a container from https://hub.docker.com/r/pytorch/pytorch, only images whose names contain 'devel' will provide nvcc.")
 
-    # check_cuda_torch_binary_vs_bare_metal(torch.utils.cpp_extension.CUDA_HOME)
+    check_cuda_torch_binary_vs_bare_metal(torch.utils.cpp_extension.CUDA_HOME)
 
     generator_flag = []
     torch_dir = torch.__path__[0]

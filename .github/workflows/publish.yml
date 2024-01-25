@@ -16,16 +16,13 @@ jobs:
       matrix:
           os: [ubuntu-22.04]
           python-version: ['3.9']
-          torch-version: [1.13.1, 2.0.0]
+          torch-version: [2.0.0]
           cuda-version: ['117', '118']
           include:
             - os: macos-13
               torch-version: 2.0.0
               cuda-version: 'cpu'
               python-version: '3.9'
-          exclude:
-            - torch-version: 1.13.1
-              cuda-version: '118'
 
     steps:
       - name: Checkout
