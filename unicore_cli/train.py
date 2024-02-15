@@ -75,25 +75,27 @@ def main(args) -> None:
     loss = task.build_loss(args)
 
     # Wandb
-    if args.wandb_project is not None:
-        logger.info("Wandb init")
-        wandb_logdir = os.path.join(args.save_dir, "wandb")
-        os.makedirs(wandb_logdir, exist_ok=True)
-        wandb.init(
-            project=args.wandb_project,
-            name=args.wandb_run_name,
-            id=args.wandb_run_id,
-            resume="allow",
-            config=vars(args) if args is not None else None,
-            dir=wandb_logdir,
-        )
-        if args.wandb_watch:
-            logger.info("Wandb watch")
-            wandb.watch(
-                models=model,
-                log="all",
-                log_freq=args.log_interval,
+    # https://docs.wandb.ai/guides/track/log/distributed-training
+    if distributed_utils.is_master(args):
+        if args.wandb_project is not None:
+            logger.info("Wandb init")
+            wandb_logdir = os.path.join(args.save_dir, "wandb")
+            os.makedirs(wandb_logdir, exist_ok=True)
+            wandb.init(
+                project=args.wandb_project,
+                name=args.wandb_run_name,
+                id=args.wandb_run_id,
+                resume="allow",
+                config=vars(args) if args is not None else None,
+                dir=wandb_logdir,
             )
+            if args.wandb_watch:
+                logger.info("Wandb watch")
+                wandb.watch(
+                    models=model,
+                    log="all",
+                    log_freq=args.log_interval,
+                )
 
     # Load valid dataset (we load training data below, based on the latest checkpoint)
     if not args.disable_validation:
